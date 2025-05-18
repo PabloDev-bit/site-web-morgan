@@ -1,242 +1,204 @@
 'use client';
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { useState, useEffect } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 
-export default function Home() {
-  const [started, setStarted] = useState(false);
+// Define each section's data
+const sections = [
+  {
+    id: 'services',
+    title: 'Nos Services',
+    icon: '🧽',
+    content: `Nettoyage professionnel textile haut de gamme pour canapés, tapis, matelas, moquettes et intérieurs de véhicules. Nous utilisons des injecteurs-extracteurs professionnels pour un nettoyage en profondeur, rapide et respectueux des matériaux.`,
+  },
+  {
+    id: 'about',
+    title: 'À Propos',
+    icon: '🎯',
+    content: `Après plusieurs années d’expérience dans le secteur de l’aéronautique, nous avons mis notre savoir-faire, notre rigueur et notre sens du détail au service des particuliers et professionnels. Notre passion pour la qualité se traduit par un nettoyage textile haut de gamme, éliminant allergènes et impuretés pour un environnement plus sain.`,
+  },
+  {
+    id: 'advantages',
+    title: 'Avantages',
+    icon: '⚡️',
+    list: [
+      'Injection ciblée au cœur des fibres pour un nettoyage optimal',
+      'Détachement et élimination des taches les plus tenaces',
+      'Aspiration puissante garantissant un séchage rapide',
+      'Produits adaptés et respectueux de chaque surface',
+      'Résultat immédiat : textiles rafraîchis et assainis',
+    ],
+  },
+  {
+    id: 'engagement',
+    title: 'Notre Engagement',
+    icon: '🤝',
+    content: `Nous intervenons à domicile sur rendez-vous, avec professionnalisme, ponctualité et souci du détail. Votre satisfaction est notre priorité et chaque prestation est réalisée dans le respect de vos besoins.`,
+  },
+];
 
-  // Variants for hyperspace transition
-  const hyperspaceVariants = {
-    initial: { opacity: 0, scale: 1 },
-    animate: {
-      opacity: 1,
-      scale: 10,
-      transition: { duration: 0.8, ease: [0.33, 1, 0.68, 1] },
-    },
-    exit: { opacity: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+// Animated starfield background
+function BackgroundSpace() {
+  const [stars] = useState(() =>
+    Array.from({ length: 120 }, () => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 2 + 0.5,
+      twinkle: Math.random() * 2 + 1,
+    }))
+  );
+
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-br from-[#000020] via-[#000010] to-[#000018]"
+        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 100%', '100% 0%'] }}
+        transition={{ duration: 80, repeat: Infinity, ease: 'linear' }}
+      />
+      {stars.map((star, i) => (
+        <motion.div
+          key={i}
+          className="absolute bg-white rounded-full"
+          style={{ width: star.size, height: star.size, top: `${star.y}%`, left: `${star.x}%` }}
+          animate={{ opacity: [0.2, 1, 0.2] }}
+          transition={{ duration: star.twinkle, repeat: Infinity, ease: 'easeInOut', repeatType: 'reverse' }}
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function Home() {
+  const [active, setActive] = useState('services');
+  const { scrollYProgress } = useScroll();
+  const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
+
+  // Update active nav link
+  useEffect(() => {
+    const onScroll = () => {
+      const midY = window.scrollY + window.innerHeight / 2;
+      sections.forEach(sec => {
+        const el = document.getElementById(sec.id);
+        if (el) {
+          const top = el.offsetTop;
+          const bottom = top + el.offsetHeight;
+          if (midY >= top && midY < bottom) setActive(sec.id);
+        }
+      });
+    };
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Reveal animation for sections
+  const reveal = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } },
   };
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-[#00051a] text-white font-sans">
-      {/* 💫 Cosmic Background Layers */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {/* Glowing Particles (Reduced for Performance) */}
-        {[...Array(100)].map((_, i) => (
-          <motion.div
-            key={`particle-${i}`}
-            className="absolute w-1 h-1 bg-cyan-300 rounded-full shadow-[0_0_6px_rgba(0,255,255,0.4)]"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              opacity: Math.random() * 0.6 + 0.4,
-            }}
-            animate={{
-              opacity: started ? [0.4, 0.8, 0] : [0.4, Math.random() * 0.6 + 0.4, 0.4],
-              scale: started ? [0.8, 2, 0.8] : [0.8, 1.2 + Math.random() * 0.5, 0.8],
-            }}
-            transition={{
-              duration: started ? 0.5 : 2.5 + Math.random() * 3,
-              repeat: Infinity,
-              delay: Math.random() * 1.5,
-              ease: 'easeInOut',
-            }}
-          />
-        ))}
+    <div className="relative w-full min-h-screen bg-black text-white font-sans overflow-x-hidden">
+      {/* Background */}
+      <BackgroundSpace />
 
-        {/* Nebula Layer */}
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-blue-950/50 via-purple-950/40 to-cyan-950/50"
-          animate={{
-            backgroundPosition: ['0% 0%', '100% 100%'],
-            opacity: [0.5, 0.7, 0.5],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
+      {/* Scroll progress bar */}
+      <motion.div
+        style={{ scaleX }}
+        className="fixed top-0 left-0 right-0 h-1 bg-teal-400 origin-left z-50"
+      />
 
-        {/* Vortex */}
-        <motion.div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[120vw] h-[120vh] bg-radial-gradient(from_50%_50%,rgba(0,255,255,0.1)_0%,transparent_70%)"
-          animate={{
-            rotate: 360,
-            opacity: [0.2, 0.3, 0.2],
-          }}
-          transition={{
-            duration: 60,
-            repeat: Infinity,
-            ease: 'linear',
-          }}
-        />
-      </div>
+      {/* Navigation */}
+      <nav className="sticky top-0 z-40 bg-[#00001a]/70 backdrop-blur-md px-8 py-4 flex justify-between items-center">
+        <h1 className="text-2xl font-extrabold bg-gradient-to-r from-teal-300 to-blue-400 bg-clip-text text-transparent">
+          MHNET
+        </h1>
+        <ul className="flex gap-6">
+          {sections.map(sec => (
+            <li key={sec.id}>
+              <Link
+                href={`#${sec.id}`}
+                className={`text-lg transition-colors ${active === sec.id ? 'text-teal-300 font-semibold' : 'text-cyan-200 hover:text-teal-300'}`}
+              >
+                {sec.icon} {sec.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
-      <AnimatePresence mode="wait">
-        {/* 🏠 HERO + CTA */}
-        {!started && (
-          <motion.div
-            key="hero"
-            className="absolute inset-0 flex flex-col"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-            role="main"
-            aria-label="Hero section"
+      {/* Hero Section */}
+      <header className="h-screen flex flex-col justify-center items-center text-center px-6 relative z-10">
+        <motion.h1
+          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-tight bg-gradient-to-r from-teal-300 to-blue-300 bg-clip-text text-transparent"
+          initial={{ opacity: 0, scale: 0.7 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1 }}
+        >
+          Réinvention<br />du Textile
+        </motion.h1>
+        <motion.p
+          className="mt-4 max-w-xl text-lg sm:text-xl text-cyan-200"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6, duration: 1 }}
+        >
+          Services de nettoyage professionnel ultra-performants,<br />respectueux de vos textiles et de l’environnement.
+        </motion.p>
+      </header>
+
+      {/* Content Sections */}
+      <main className="relative z-10">
+        {sections.map((sec, idx) => (
+          <motion.section
+            key={sec.id}
+            id={sec.id}
+            className={`py-24 px-6 sm:px-12 lg:px-24 ${idx % 2 === 0 ? '' : 'bg-[#00001a]/30'}`}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-100px' }}
+            variants={{
+              hidden: { opacity: 0, y: 60 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } }
+            }}
           >
-            {/* Navigation */}
-            <nav className="flex justify-between items-center px-10 py-6 z-10">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent tracking-tight">
-                MHNET
-              </h1>
-              <div className="flex gap-8 text-base font-medium">
-                <Link
-                  href="#services"
-                  className="relative text-cyan-200 hover:text-cyan-400 transition-colors duration-200 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-cyan-400 after:transition-all after:duration-200 hover:after:w-full"
-                  aria-label="Services"
-                >
-                  Services
-                </Link>
-                <Link
-                  href="#contact"
-                  className="relative text-cyan-200 hover:text-cyan-400 transition-colors duration-200 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-cyan-400 after:transition-all after:duration-200 hover:after:w-full"
-                  aria-label="Contact"
-                >
-                  Contact
-                </Link>
-              </div>
-            </nav>
-
-            {/* Hero Section */}
-            <section className="m-auto text-center px-10 z-10 flex flex-col items-center justify-center h-[calc | (100vh-80px)]">
-              <motion.h1
-                className="text-6xl sm:text-7xl md:text-8xl font-extrabold bg-gradient-to-r from-cyan-200 to-blue-200 bg-clip-text text-transparent mb-4 tracking-tight drop-shadow-[0_2px_8px_rgba(0,255,255,0.2)]"
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
-                aria-label="MHNET Title"
-              >
-                MHNET
-              </motion.h1>
-              <motion.p
-                className="text-xl sm:text-2xl md:text-3xl font-light text-cyan-100 max-w-2xl mx-auto mb-10 leading-relaxed tracking-wide"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.8, ease: 'easeOut' }}
-              >
-                <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-medium">
-                  Réinvention technologique
-                </span>{' '}
-                du nettoyage professionnel
-              </motion.p>
-
-              {/* Hyperspace Button */}
-              <motion.div
-                whileHover={{
-                  scale: 1.1,
-                  boxShadow: '0 0 30px rgba(0, 255, 255, 0.5)',
-                }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-block relative"
-              >
-                <button
-                  onClick={() => setStarted(true)}
-                  className="px-20 py-5 bg-gradient-to-r from-blue-700 to-cyan-600 rounded-2xl text-xl font-semibold shadow-[0_0_15px_rgba(0,255,255,0.3)] hover:shadow-[0_0_25px_rgba(0,255,255,0.5)] transition-all duration-200 relative overflow-hidden group"
-                  aria-label="Commencez maintenant"
-                >
-                  <span className="relative z-10">Commencez maintenant</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 opacity-0 group-hover:opacity-10 transition-opacity duration-200" />
-                </button>
-              </motion.div>
-            </section>
-          </motion.div>
-        )}
-
-        {/* 🚀 HYPERSPACE TRANSITION */}
-        {started && (
-          <>
-            {/* Hyperspace Effect Overlay */}
-            <motion.div
-              key="hyperspace"
-              className="absolute inset-0 bg-[#00051a] z-50"
-              variants={hyperspaceVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              aria-hidden="true"
-            >
-              {/* Streaking Stars (Optimized) */}
-              {[...Array(40)].map((_, i) => (
-                <motion.div
-                  key={`streak-${i}`}
-                  className="absolute w-0.5 h-16 bg-gradient-to-b from-cyan-400 to-transparent rounded-full"
-                  style={{
-                    top: `${Math.random() * 100}%`,
-                    left: `${Math.random() * 100}%`,
-                    rotate: Math.random() * 360,
-                  }}
-                  animate={{
-                    scaleY: [1, 30, 1],
-                    opacity: [0, 1, 0],
-                    x: (Math.random() - 0.5) * 800,
-                    y: (Math.random() - 0.5) * 800,
-                  }}
-                  transition={{
-                    duration: 0.7,
-                    delay: Math.random() * 0.2,
-                    ease: [0.33, 1, 0.68, 1],
-                  }}
-                />
-              ))}
-              {/* Subtle Lens Flare */}
-              <motion.div
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-r from-cyan-300/30 to-blue-300/30 rounded-full blur-2xl"
-                animate={{ scale: [1, 3, 1], opacity: [0, 0.5, 0] }}
-                transition={{ duration: 0.7, ease: 'easeOut' }}
-              />
-            </motion.div>
-
-            {/* Profession Section */}
-            <motion.section
-              key="metier"
-              className="absolute inset-0 z-40 flex items-center justify-center p-6 sm:p-10 text-center"
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9, duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
-              role="region"
-              aria-label="Profession section"
-            >
-              <motion.div
-                className="max-w-3xl bg-black/20 backdrop-blur-lg p-8 sm:p-10 rounded-2xl shadow-[0_0_40px_rgba(0,255,255,0.15)] border border-cyan-500/10"
-                initial={{ scale: 0.98 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.9 }}
-              >
-                <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-4 tracking-tight">
-                  Le métier de mon frère
-                </h2>
-                <p className="text-base sm:text-lg text-cyan-100 leading-relaxed max-w-2xl mx-auto mb-6">
-                  Mon frère excelle dans le nettoyage professionnel textile. Avec des techniques comme l’injection-extraction, il redonne vie à vos canapés, tapis, sièges de véhicule et matelas, offrant des résultats impeccables, rapides et écoresponsables.
+            <div className="max-w-3xl mx-auto text-center">
+              <div className="text-4xl mb-4">{sec.icon}</div>
+              <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-teal-300 to-blue-300 bg-clip-text text-transparent mb-4">
+                {sec.title}
+              </h2>
+              {sec.list ? (
+                <ul className="list-disc list-inside space-y-3 text-lg text-cyan-200">
+                  {sec.list.map((item, i) => (<li key={i}>{item}</li>))}
+                </ul>
+              ) : (
+                <p className="text-lg text-cyan-200 leading-relaxed whitespace-pre-line">
+                  {sec.content}
                 </p>
-                <motion.div
-                  whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(0, 255, 255, 0.3)' }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-block"
-                >
-                  <Link
-                    href="#services"
-                    className="px-12 py-3 bg-gradient-to denti-r from-blue-600 to-cyan-600 rounded-xl text-base font-semibold shadow-lg hover:shadow-cyan-600/30 transition-all duration-200"
-                    aria-label="Découvrez nos services"
-                  >
-                    Découvrez nos services
-                  </Link>
-                </motion.div>
-              </motion.div>
-            </motion.section>
-          </>
-        )}
-      </AnimatePresence>
+              )}
+            </div>
+          </motion.section>
+        ))}
+      </main>
+
+      {/* Footer */}
+      <motion.footer
+        className="py-16 text-center bg-[#000015] mt-12 relative z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 1 }}
+      >
+        <p className="text-lg text-cyan-200 mb-6">
+          Envie de textile impeccable ? Demandez un devis dès maintenant !
+        </p>
+        <Link
+          href="#contact"
+          className="inline-block px-8 py-3 bg-teal-500 hover:bg-teal-600 rounded-full font-semibold transition-colors"
+        >
+          Contactez-nous
+        </Link>
+      </motion.footer>
     </div>
   );
 }
