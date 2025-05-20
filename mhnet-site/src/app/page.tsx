@@ -1,257 +1,234 @@
-'use client';
-
-import { useState, useEffect } from 'react';
+"use client";
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 
-const sections = [
-  {
-    id: 'services',
-    title: 'Nos Services',
-    icon: '🧽',
-    content: `Nettoyage professionnel textile haut de gamme pour canapés, tapis, matelas, moquettes et intérieurs de véhicules. Nous utilisons des injecteurs-extracteurs professionnels pour un nettoyage en profondeur, rapide et respectueux des matériaux.`,
-  },
-  {
-    id: 'about',
-    title: 'À Propos',
-    icon: '🎯',
-    content: `Après plusieurs années d’expérience dans le secteur de l’aéronautique, nous avons mis notre savoir-faire, notre rigueur et notre sens du détail au service des particuliers et professionnels. Notre passion pour la qualité se traduit par un nettoyage textile haut de gamme, éliminant allergènes et impuretés pour un environnement plus sain.`,
-  },
-  {
-    id: 'advantages',
-    title: 'Avantages',
-    icon: '⚡️',
-    list: [
-      'Injection ciblée au cœur des fibres pour un nettoyage optimal',
-      'Détachement et élimination des taches les plus tenaces',
-      'Aspiration puissante garantissant un séchage rapide',
-      'Produits adaptés et respectueux de chaque surface',
-      'Résultat immédiat : textiles rafraîchis et assainis',
-    ],
-  },
-  {
-    id: 'engagement',
-    title: 'Notre Engagement',
-    icon: '🤝',
-    content: `Nous intervenons à domicile sur rendez-vous, avec professionnalisme, ponctualité et souci du détail. Votre satisfaction est notre priorité et chaque prestation est réalisée dans le respect de vos besoins.`,
-  },
-];
-
-const pricing = [
-  { prestation: 'Fauteuil', standard: '70 CHF', supplement: '90 CHF' },
-  { prestation: 'Canapé 2 places', standard: '120 CHF', supplement: '140 CHF' },
-  { prestation: 'Canapé 3 places', standard: '150 CHF', supplement: '170 CHF' },
-  { prestation: 'Canapé 4 places', standard: '170 CHF', supplement: '190 CHF' },
-  { prestation: 'Canapé 5 places', standard: '180 CHF', supplement: '200 CHF' },
-  { prestation: 'Tapis (standard)', standard: 'dès 90 CHF', supplement: 'jusqu’à 140 CHF' },
-  { prestation: 'Moquette (5–10 m²)', standard: '130 CHF', supplement: '160 CHF' },
-  { prestation: 'Matelas 1 place', standard: '90 CHF', supplement: '110 CHF' },
-  { prestation: 'Matelas 2 places', standard: '120 CHF', supplement: '150 CHF' },
-  { prestation: 'Matelas King Size', standard: '150 CHF', supplement: '180 CHF' },
-  { prestation: 'Intérieur voiture complet', standard: '140 CHF', supplement: 'jusqu’à 200 CHF selon état' },
-  { prestation: 'OFFRE Canapé 3pl + tapis', standard: '220 CHF', supplement: '250 CHF' },
-  { prestation: 'OFFRE Canapé 5pl + grand tapis', standard: '250 CHF', supplement: '280 CHF' },
-  { prestation: 'OFFRE Canapé + tapis + voiture', standard: '330 CHF', supplement: '380 CHF' },
-];
-
-function BackgroundSpace() {
-  const [stars] = useState(() =>
-    Array.from({ length: 120 }, () => ({
+// Galaxy Background with Twinkling Stars (Blue Theme)
+type Star = { x: number; y: number; size: number; twinkle: number; };
+function GalaxyBackground() {
+  const [stars] = useState<Star[]>(() =>
+    Array.from({ length: 150 }, () => ({
       x: Math.random() * 100,
       y: Math.random() * 100,
       size: Math.random() * 2 + 0.5,
       twinkle: Math.random() * 2 + 1,
     }))
   );
-
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+    <div className="fixed inset-0 pointer-events-none z-0">
       <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-[#000020] via-[#000010] to-[#000018]"
+        className="absolute inset-0 bg-gradient-to-br from-[#001f3f] via-[#001229] to-[#000814]"
         animate={{ backgroundPosition: ['0% 0%', '100% 100%'] }}
-        transition={{ duration: 80, repeat: Infinity, ease: 'linear' }}
+        transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
       />
       {stars.map((s, i) => (
         <motion.div
           key={i}
           className="absolute bg-white rounded-full"
           style={{ width: s.size, height: s.size, top: `${s.y}%`, left: `${s.x}%` }}
-          animate={{ opacity: [0.2, 1, 0.2] }}
-          transition={{ duration: s.twinkle, repeat: Infinity, ease: 'easeInOut', repeatType: 'reverse' }}
+          animate={{ opacity: [0.1, 1, 0.1] }}
+          transition={{ duration: s.twinkle, repeat: Infinity, ease: 'easeInOut' }}
         />
       ))}
     </div>
   );
 }
 
+// Before/After Slider Component
+function BeforeAfterSlider({ before, after }: { before: string; after: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [sliderPos, setSliderPos] = useState(50);
+  const [dragging, setDragging] = useState(false);
+
+  const startDrag = () => setDragging(true);
+  const stopDrag = () => setDragging(false);
+  const onDrag = (e: MouseEvent) => {
+    if (!dragging || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    let pos = ((e.clientX - rect.left) / rect.width) * 100;
+    pos = Math.max(0, Math.min(100, pos));
+    setSliderPos(pos);
+  };
+
+  useEffect(() => {
+    window.addEventListener('mousemove', onDrag);
+    window.addEventListener('mouseup', stopDrag);
+    return () => {
+      window.removeEventListener('mousemove', onDrag);
+      window.removeEventListener('mouseup', stopDrag);
+    };
+  }, [dragging]);
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseDown={startDrag}
+      className="relative w-full max-w-4xl mx-auto cursor-ew-resize"
+      style={{ userSelect: 'none' }}
+    >
+      <img src={before} alt="Avant" className="block w-full rounded-lg shadow-lg" />
+      <div
+        className="absolute top-0 left-0 h-full overflow-hidden rounded-lg"
+        style={{ width: `${sliderPos}%` }}
+      >
+        <img src={after} alt="Après" className="block w-full" />
+      </div>
+      <div
+        className="absolute top-0 h-full w-0.5 bg-white"
+        style={{ left: `${sliderPos}%` }}
+      />
+      <div
+        className="absolute top-2 text-white font-semibold"
+        style={{ left: '8px' }}
+      >Avant</div>
+      <div
+        className="absolute top-2 text-white font-semibold"
+        style={{ left: `calc(${sliderPos}% + 8px)` }}
+      >Après</div>
+    </div>
+  );
+}
+
+// Service Sections
+const servicesSections = [
+  { id: 'services', icon: '🧽', title: 'Nos Services', content: `Nettoyage textile premium avec technologie galactique, pour un résultat éclatant.` },
+  { id: 'about', icon: '🎯', title: 'À Propos', content: `Fort d'une expérience stellaire, MHNET redéfinit le nettoyage professionnel.` },
+  { id: 'advantages', icon: '⚡️', title: 'Avantages', list: [
+      'Injection cosmique pour un nettoyage ultra-profond',
+      'Déstabilisation des taches les plus tenaces',
+      'Séchage rapide grâce à aspiration gravitationnelle',
+      'Produits respectueux et éco-compatibles',
+      'Textiles rénovés avec éclat immédiat',
+    ]
+  },
+  { id: 'engagement', icon: '🤝', title: 'Notre Engagement', content: `Ponctualité sidérale et professionnalisme garantis. Votre satisfaction est notre ultime mission.` },
+];
+
+// Pricing Cards
+const pricing = [
+  { prestation: 'Fauteuil', prix: '70 CHF' },
+  { prestation: 'Canapé 2 places', prix: '120 CHF' },
+  { prestation: 'Canapé 3 places', prix: '150 CHF' },
+  { prestation: 'Tapis (standard)', prix: 'dès 90 CHF' },
+  { prestation: 'Matelas 1 place', prix: '90 CHF' },
+  { prestation: 'Matelas 2 places', prix: '120 CHF' },
+  { prestation: 'Matelas King Size', prix: '150 CHF' },
+  { prestation: 'Intérieur voiture complet', prix: '140 CHF' },
+];
+
 export default function Home() {
-  const [active, setActive] = useState('services');
   const [menuOpen, setMenuOpen] = useState(false);
   const { scrollYProgress } = useScroll();
   const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   useEffect(() => {
-    const onScroll = () => {
-      const mid = window.scrollY + window.innerHeight / 2;
-      sections.forEach((sec) => {
-        const el = document.getElementById(sec.id);
-        if (el && mid >= el.offsetTop && mid < el.offsetTop + el.offsetHeight) {
-          setActive(sec.id);
-        }
-      });
-      setMenuOpen(false);
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
     };
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
   }, []);
 
   return (
-    <div className="relative w-full min-h-screen bg-black text-white font-sans overflow-x-hidden">
-      <BackgroundSpace />
+    <div className="relative bg-transparent text-white min-h-screen overflow-x-hidden font-sans">
+      {/* Galaxy Background */}
+      <GalaxyBackground />
 
-      <motion.div style={{ scaleX }} className="fixed top-0 left-0 right-0 h-1 bg-teal-400 origin-left z-50" />
+      {/* Loading Progress Bar */}
+      <motion.div style={{ scaleX }} className="fixed top-0 left-0 right-0 h-1 bg-blue-400 origin-left z-50" />
 
-      <nav className="sticky top-0 z-40 bg-[#00001a]/80 backdrop-blur-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-extrabold bg-gradient-to-r from-teal-300 to-blue-400 bg-clip-text text-transparent">
-            MHNET
-          </h1>
-          <ul className="hidden md:flex gap-6 text-sm sm:text-base">
-            {sections.map((sec) => (
-              <li key={sec.id}>
-                <Link
-                  href={`#${sec.id}`}
-                  className={`transition-colors ${
-                    active === sec.id ? 'text-teal-300 font-semibold' : 'text-cyan-200 hover:text-teal-300'
-                  }`}
-                >
-                  {sec.icon} {sec.title}
+      {/* Side Navigation Drawer */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.aside
+            initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ duration: 0.4, ease: 'easeInOut' }}
+            className="fixed inset-y-0 left-0 w-64 bg-[#001229]/90 shadow-lg z-40 p-6"
+            aria-label="Menu mobile"
+          >
+            <button onClick={() => setMenuOpen(false)} className="text-xl mb-6 focus:outline-none">✕ Fermer</button>
+            <nav className="flex flex-col space-y-4 text-lg">
+              {servicesSections.map(s => (
+                <Link key={s.id} href={`#${s.id}`} onClick={() => setMenuOpen(false)} className="hover:text-blue-400 transition">
+                  {s.icon} {s.title}
                 </Link>
-              </li>
-            ))}
-            <li>
-              <Link
-                href="#tarifs"
-                className="ml-2 px-4 py-1.5 bg-teal-500 hover:bg-teal-600 text-white rounded-full font-semibold transition"
-              >
-                Tarifs
+              ))}
+              <Link href="#tarifs" className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-center hover:bg-blue-700 transition">
+                Voir les tarifs
               </Link>
-            </li>
-          </ul>
-          <div className="md:hidden">
-            <button onClick={() => setMenuOpen((prev) => !prev)} className="text-cyan-200 text-2xl focus:outline-none">
-              {menuOpen ? '✕' : '☰'}
-            </button>
-          </div>
-        </div>
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="overflow-hidden md:hidden px-6 pb-4"
-            >
-              <ul className="flex flex-col gap-4 text-cyan-200">
-                {sections.map((sec) => (
-                  <li key={sec.id}>
-                    <Link
-                      href={`#${sec.id}`}
-                      onClick={() => setMenuOpen(false)}
-                      className="block py-1 hover:text-teal-300"
-                    >
-                      {sec.icon} {sec.title}
-                    </Link>
-                  </li>
-                ))}
-                <li>
-                  <Link
-                    href="#tarifs"
-                    onClick={() => setMenuOpen(false)}
-                    className="block px-4 py-2 mt-2 bg-teal-500 hover:bg-teal-600 text-white rounded-full text-center font-semibold transition"
-                  >
-                    Voir les tarifs
-                  </Link>
-                </li>
-              </ul>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </nav>
+            </nav>
+          </motion.aside>
+        )}
+      </AnimatePresence>
 
-      <header className="h-screen flex flex-col justify-center items-center text-center px-4 sm:px-6 lg:px-8 relative z-10">
-        <motion.div className="max-w-3xl" initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1 }}>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-teal-300 to-blue-300 bg-clip-text text-transparent">
-            Réinvention<br />du Textile
-          </h1>
-          <motion.p className="mt-4 text-lg sm:text-xl text-cyan-200" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 1 }}>
-            Services de nettoyage professionnel ultra-performants,<br />respectueux de vos textiles et de l’environnement.
-          </motion.p>
-        </motion.div>
-        <Link href="#services">
-          <motion.div className="mt-12 text-4xl text-cyan-200 cursor-pointer" animate={{ y: [0, 10, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}>
-            ⬇️
-          </motion.div>
-        </Link>
+      {/* Navbar */}
+      <header className="sticky top-0 z-30 backdrop-blur-md bg-[#001229]/80">
+        <div className="max-w-6xl mx-auto flex items-center justify-between p-6">
+          <h1 className="text-2xl font-extrabold"><Link href="/">MH<span className="text-blue-400">NET</span></Link></h1>
+          <nav className="hidden md:flex space-x-8 text-base">
+            {servicesSections.map(s => (
+              <Link key={s.id} href={`#${s.id}`} className="hover:text-blue-400 transition font-medium">{s.title}</Link>
+            ))}
+            <Link href="#tarifs" className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">TARIFS</Link>
+            <Link href="#contact" className="px-4 py-2 border-2 border-blue-400 text-blue-400 rounded-full hover:bg-[#001229]/20 transition">DEVIS</Link>
+          </nav>
+          <button onClick={() => setMenuOpen(true)} className="md:hidden text-2xl focus:outline-none">☰</button>
+        </div>
       </header>
 
-      <main className="relative z-10">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 grid grid-cols-1 md:grid-cols-2 gap-8">
-          {sections.map((sec) => (
-            <motion.div key={sec.id} id={sec.id} className="bg-[#00001a]/40 rounded-xl p-6 backdrop-blur-sm" initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, ease: 'easeOut' }}>
-              <div className="flex items-center mb-4">
-                <span className="text-4xl mr-3">{sec.icon}</span>
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-teal-300 to-blue-300 bg-clip-text text-transparent">{sec.title}</h2>
-              </div>
-              {sec.list ? (
-                <ul className="list-disc list-inside space-y-2 text-cyan-200">
-                  {sec.list.map((item, i) => <li key={i}>{item}</li>)}
-                </ul>
-              ) : (
-                <p className="text-cyan-200 text-base leading-relaxed whitespace-pre-line">{sec.content}</p>
-              )}
-            </motion.div>
-          ))}
-        </div>
-      </main>
-
-      <section id="tarifs" className="relative z-10 bg-[#00001a]/20 py-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white text-center mb-8">
-            Tarifs MH Net – Nettoyage textile à domicile
-          </h2>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="overflow-x-auto">
-            <table className="min-w-full table-auto border-separate border-spacing-0">
-              <thead>
-                <tr className="bg-gradient-to-r from-teal-500 to-blue-500">
-                  <th className="px-4 py-3 text-left text-sm sm:text-base font-medium text-white">Prestation</th>
-                  <th className="px-4 py-3 text-center text-sm sm:text-base font-medium text-white">Tarif standard</th>
-                  <th className="px-4 py-3 text-center text-sm sm:text-base font-medium text-white">Supplément</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pricing.map((row, i) => (
-                  <tr key={i} className={i % 2 === 0 ? 'bg-[#000015]/40' : 'bg-[#000015]/20'}>
-                    <td className="px-4 py-3 text-sm sm:text-base">{row.prestation}</td>
-                    <td className="px-4 py-3 text-center text-sm sm:text-base">{row.standard}</td>
-                    <td className="px-4 py-3 text-center text-sm sm:text-base">{row.supplement}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </motion.div>
+      {/* Hero */}
+      <section className="relative pt-20 pb-32 text-center overflow-hidden">
+        <div className="max-w-3xl mx-auto px-6">
+          <motion.h2 initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-5xl md:text-6xl font-extrabold leading-tight">Réinvention du Textile</motion.h2>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 0.8 }} className="mt-6 text-lg text-gray-300">Services de nettoyage professionnel ultra-performants,<br />respectueux de vos textiles et de l’environnement.</motion.p>
+          <div className="mt-8 flex justify-center space-x-4">
+            <Link href="#services" passHref><motion.a whileHover={{ scale: 1.05 }} className="px-6 py-3 bg-blue-600 text-white rounded-full font-semibold shadow hover:bg-blue-700 transition">En savoir plus</motion.a></Link>
+            <Link href="#tarifs" passHref><motion.a whileHover={{ scale: 1.05 }} className="px-6 py-3 border-2 border-blue-400 text-blue-400 rounded-full font-semibold hover:bg-[#001229]/20 transition">Nos tarifs</motion.a></Link>
+          </div>
         </div>
       </section>
 
-      <motion.footer className="py-16 text-center bg-[#000015] mt-12 relative z-10 px-4 sm:px-6 lg:px-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 1 }}>
-        <p className="text-base sm:text-lg text-cyan-200 mb-6">
-          Envie de textile impeccable ? Demandez un devis dès maintenant !
-        </p>
-        <Link href="#contact" className="inline-block px-6 sm:px-8 py-3 bg-teal-500 hover:bg-teal-600 rounded-full font-semibold transition-colors text-sm sm:text-base">
-          Contactez-nous
-        </Link>
-      </motion.footer>
+      {/* Avant / Après Slider */}
+      <section className="py-20 bg-transparent">
+        <h2 className="text-3xl font-extrabold text-center mb-8">Comparaison Avant / Après</h2>
+        <BeforeAfterSlider before="photo(1).jpeg" after="photo(3).jpeg" />
+      </section>
+
+      {/* Main Sections */}
+      <main className="py-20 space-y-20">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12">
+          {servicesSections.map(s => (
+            <motion.section key={s.id} id={s.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="bg-[#001229]/60 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition backdrop-blur-sm">
+              <div className="flex items-center mb-4"><span className="text-4xl mr-3">{s.icon}</span><h3 className="text-2xl font-bold">{s.title}</h3></div>
+              {s.list ? <ul className="list-disc list-inside space-y-2 text-gray-300">{s.list.map((item, i) => <li key={i}>{item}</li>)}</ul> : <p className="text-gray-300 leading-relaxed whitespace-pre-line">{s.content}</p>}
+            </motion.section>
+          ))}
+        </div>
+
+        {/* Pricing Cards */}
+        <section id="tarifs" className="py-20">
+          <div className="max-w-6xl mx-auto px-6">
+            <h2 className="text-4xl font-extrabold text-center mb-12 text-white">Tarifs MH Net</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {pricing.map((p, i) => (
+                <motion.div key={i} whileHover={{ scale: 1.03 }} className="bg-[#001229]/70 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition backdrop-blur-sm flex flex-col justify-between">
+                  <h3 className="text-2xl font-bold mb-4 text-white">{p.prestation}</h3>
+                  <p className="text-blue-400 text-xl font-semibold mb-6">{p.prix}</p>
+                  <Link href="#contact" passHref><motion.a whileHover={{ scale: 1.05 }} className="mt-auto px-4 py-2 bg-blue-600 text-white rounded-full text-center font-medium hover:bg-blue-700 transition">Réserver</motion.a></Link>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Footer / Contact */}
+      <footer className="bg-[#001229] text-white py-16">
+        <div className="max-w-3xl mx-auto px-6 text-center space-y-6">
+          <h2 className="text-3xl font-extrabold">Besoin d’un devis ?</h2>
+          <p className="text-lg text-gray-300">Contactez-nous dès maintenant pour une estimation gratuite et sans engagement.</p>
+          <Link href="mailto:contact@mhnet.com" passHref><motion.a whileHover={{ scale: 1.05 }} className="inline-block px-8 py-4 border-2 border-blue-400 rounded-full font-semibold hover:bg-[#001229]/20 transition">Demander un devis</motion.a></Link>
+        </div>
+      </footer>
     </div>
   );
 }
