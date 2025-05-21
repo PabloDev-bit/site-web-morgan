@@ -1,219 +1,422 @@
+/* -------------------------------------------------------------------------- */
+/*  /app/page.tsx — page d'accueil tout-en-un (aucun composant externe)        */
+/*  Next.js 13/14 + Tailwind + Framer-Motion, full TypeScript                 */
+/* -------------------------------------------------------------------------- */
 "use client";
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import Link from 'next/link';
 
-// Galaxy Background with Twinkling Stars (Blue Theme)
-type Star = { x: number; y: number; size: number; twinkle: number; };
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import Link from "next/link";
+import Image from "next/image";
+
+/* ============================== 1. MÉTADONNÉES ============================ */
+
+const LOGO = (
+  <span className="text-2xl font-extrabold tracking-tight">
+    MH<span className="text-blue-400">NET</span>
+  </span>
+);
+
+type Star = { x: number; y: number; size: number; twinkle: number };
+
+type Section =
+  | {
+      id: string;
+      icon: string;
+      title: string;
+      content: string;
+      list?: undefined;
+    }
+  | {
+      id: string;
+      icon: string;
+      title: string;
+      list: readonly string[];
+      content?: undefined;
+    };
+
+const SECTIONS: readonly Section[] = [
+  {
+    id: "services",
+    icon: "🧽",
+    title: "Nos Services",
+    content:
+      "Nettoyage textile premium avec technologie galactique pour un résultat éclatant.",
+  },
+  {
+    id: "about",
+    icon: "🎯",
+    title: "À Propos",
+    content:
+      "Fort d'une expérience stellaire, MHNET redéfinit le nettoyage professionnel.",
+  },
+  {
+    id: "advantages",
+    icon: "⚡️",
+    title: "Avantages",
+    list: [
+      "Injection cosmique pour un nettoyage ultra-profond",
+      "Déstabilisation des taches tenaces",
+      "Séchage rapide par aspiration gravitationnelle",
+      "Produits éco-compatibles",
+      "Textiles rénovés instantanément",
+    ],
+  },
+  {
+    id: "engagement",
+    icon: "🤝",
+    title: "Notre Engagement",
+    content:
+      "Ponctualité sidérale et professionnalisme garantis. Votre satisfaction est notre mission.",
+  },
+] as const;
+
+const PRICING = [
+  { prestation: "Fauteuil", prix: "70 CHF" },
+  { prestation: "Canapé 2 places", prix: "120 CHF" },
+  { prestation: "Canapé 3 places", prix: "150 CHF" },
+  { prestation: "Tapis (standard)", prix: "dès 90 CHF" },
+  { prestation: "Matelas 1 place", prix: "90 CHF" },
+  { prestation: "Matelas 2 places", prix: "120 CHF" },
+  { prestation: "Matelas King Size", prix: "150 CHF" },
+  { prestation: "Intérieur voiture complet", prix: "140 CHF" },
+] as const;
+
+/* =========================== 2. SOUS-FONCTIONS ============================ */
+
 function GalaxyBackground() {
-  const [stars] = useState<Star[]>(() =>
-    Array.from({ length: 150 }, () => ({
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2 + 0.5,
-      twinkle: Math.random() * 2 + 1,
-    }))
+  const stars = useMemo<Star[]>(
+    () =>
+      Array.from({ length: 150 }, () => ({
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 2 + 0.5,
+        twinkle: Math.random() * 2 + 1,
+      })),
+    []
   );
+
   return (
-    <div className="fixed inset-0 pointer-events-none z-0">
+    <div className="fixed inset-0 -z-10 pointer-events-none">
       <motion.div
         className="absolute inset-0 bg-gradient-to-br from-[#001f3f] via-[#001229] to-[#000814]"
-        animate={{ backgroundPosition: ['0% 0%', '100% 100%'] }}
-        transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
+        animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
+        transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
       />
       {stars.map((s, i) => (
         <motion.div
           key={i}
-          className="absolute bg-white rounded-full"
-          style={{ width: s.size, height: s.size, top: `${s.y}%`, left: `${s.x}%` }}
+          className="absolute rounded-full bg-white"
+          style={{
+            width: s.size,
+            height: s.size,
+            top: `${s.y}%`,
+            left: `${s.x}%`,
+          }}
           animate={{ opacity: [0.1, 1, 0.1] }}
-          transition={{ duration: s.twinkle, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{
+            duration: s.twinkle,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
         />
       ))}
     </div>
   );
 }
 
-// Before/After Slider Component
 function BeforeAfterSlider({ before, after }: { before: string; after: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [sliderPos, setSliderPos] = useState(50);
-  const [dragging, setDragging] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const [ratio, setRatio] = useState(50);
 
-  const startDrag = () => setDragging(true);
-  const stopDrag = () => setDragging(false);
-  const onDrag = (e: MouseEvent) => {
-    if (!dragging || !containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    let pos = ((e.clientX - rect.left) / rect.width) * 100;
-    pos = Math.max(0, Math.min(100, pos));
-    setSliderPos(pos);
-  };
+  const update = useCallback((clientX: number) => {
+    const el = ref.current;
+    if (!el) return;
+    const { left, width } = el.getBoundingClientRect();
+    setRatio(Math.max(0, Math.min(100, ((clientX - left) / width) * 100)));
+  }, []);
 
-  useEffect(() => {
-    window.addEventListener('mousemove', onDrag);
-    window.addEventListener('mouseup', stopDrag);
-    return () => {
-      window.removeEventListener('mousemove', onDrag);
-      window.removeEventListener('mouseup', stopDrag);
+  const start = (e: React.PointerEvent) => {
+    update(e.clientX);
+    const move = (ev: PointerEvent) => update(ev.clientX);
+    const end = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", end);
     };
-  }, [dragging]);
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", end);
+  };
 
   return (
     <div
-      ref={containerRef}
-      onMouseDown={startDrag}
-      className="relative w-full max-w-4xl mx-auto cursor-ew-resize"
-      style={{ userSelect: 'none' }}
+      ref={ref}
+      onPointerDown={start}
+      className="relative mx-auto w-full max-w-4xl cursor-ew-resize select-none"
     >
-      <img src={before} alt="Avant" className="block w-full rounded-lg shadow-lg" />
-      <div
-        className="absolute top-0 left-0 h-full overflow-hidden rounded-lg"
-        style={{ width: `${sliderPos}%` }}
-      >
-        <img src={after} alt="Après" className="block w-full" />
-      </div>
-      <div
-        className="absolute top-0 h-full w-0.5 bg-white"
-        style={{ left: `${sliderPos}%` }}
+      <Image
+        src={before}
+        alt="Avant nettoyage"
+        width={1920}
+        height={1080}
+        className="w-full rounded-lg shadow-lg"
+        priority
       />
       <div
-        className="absolute top-2 text-white font-semibold"
-        style={{ left: '8px' }}
-      >Avant</div>
+        className="absolute inset-y-0 left-0 overflow-hidden rounded-lg"
+        style={{ width: `${ratio}%` }}
+      >
+        <Image
+          src={after}
+          alt="Après nettoyage"
+          width={1920}
+          height={1080}
+          className="w-full"
+        />
+      </div>
       <div
-        className="absolute top-2 text-white font-semibold"
-        style={{ left: `calc(${sliderPos}% + 8px)` }}
-      >Après</div>
+        className="absolute inset-y-0 w-0.5 bg-white"
+        style={{ left: `${ratio}%` }}
+      />
+      <span className="absolute top-2 left-2 font-semibold text-white">Avant</span>
+      <span
+        className="absolute top-2 font-semibold text-white"
+        style={{ left: `calc(${ratio}% + 8px)` }}
+      >
+        Après
+      </span>
     </div>
   );
 }
 
-// Service Sections
-const servicesSections = [
-  { id: 'services', icon: '🧽', title: 'Nos Services', content: `Nettoyage textile premium avec technologie galactique, pour un résultat éclatant.` },
-  { id: 'about', icon: '🎯', title: 'À Propos', content: `Fort d'une expérience stellaire, MHNET redéfinit le nettoyage professionnel.` },
-  { id: 'advantages', icon: '⚡️', title: 'Avantages', list: [
-      'Injection cosmique pour un nettoyage ultra-profond',
-      'Déstabilisation des taches les plus tenaces',
-      'Séchage rapide grâce à aspiration gravitationnelle',
-      'Produits respectueux et éco-compatibles',
-      'Textiles rénovés avec éclat immédiat',
-    ]
-  },
-  { id: 'engagement', icon: '🤝', title: 'Notre Engagement', content: `Ponctualité sidérale et professionnalisme garantis. Votre satisfaction est notre ultime mission.` },
-];
-
-// Pricing Cards
-const pricing = [
-  { prestation: 'Fauteuil', prix: '70 CHF' },
-  { prestation: 'Canapé 2 places', prix: '120 CHF' },
-  { prestation: 'Canapé 3 places', prix: '150 CHF' },
-  { prestation: 'Tapis (standard)', prix: 'dès 90 CHF' },
-  { prestation: 'Matelas 1 place', prix: '90 CHF' },
-  { prestation: 'Matelas 2 places', prix: '120 CHF' },
-  { prestation: 'Matelas King Size', prix: '150 CHF' },
-  { prestation: 'Intérieur voiture complet', prix: '140 CHF' },
-];
+/* ================================ 3. PAGE ================================ */
 
 export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [drawer, setDrawer] = useState(false);
   const { scrollYProgress } = useScroll();
   const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
+  /* ESC ferme le menu mobile */
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMenuOpen(false);
-    };
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setDrawer(false);
+    window.addEventListener("keydown", esc);
+    return () => window.removeEventListener("keydown", esc);
   }, []);
 
   return (
-    <div className="relative bg-transparent text-white min-h-screen overflow-x-hidden font-sans">
-      {/* Galaxy Background */}
+    <>
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only absolute top-0 left-0 m-2 rounded bg-blue-600 px-4 py-2 text-white"
+      >
+        Aller au contenu
+      </a>
+
       <GalaxyBackground />
 
-      {/* Loading Progress Bar */}
-      <motion.div style={{ scaleX }} className="fixed top-0 left-0 right-0 h-1 bg-blue-400 origin-left z-50" />
+      <motion.div
+        style={{ scaleX }}
+        className="fixed inset-x-0 top-0 z-50 h-1 origin-left bg-blue-400"
+        aria-hidden
+      />
 
-      {/* Side Navigation Drawer */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.aside
-            initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ duration: 0.4, ease: 'easeInOut' }}
-            className="fixed inset-y-0 left-0 w-64 bg-[#001229]/90 shadow-lg z-40 p-6"
-            aria-label="Menu mobile"
-          >
-            <button onClick={() => setMenuOpen(false)} className="text-xl mb-6 focus:outline-none">✕ Fermer</button>
-            <nav className="flex flex-col space-y-4 text-lg">
-              {servicesSections.map(s => (
-                <Link key={s.id} href={`#${s.id}`} onClick={() => setMenuOpen(false)} className="hover:text-blue-400 transition">
-                  {s.icon} {s.title}
+      {/* ----------------------------- NAVBAR ----------------------------- */}
+      <header className="sticky top-0 z-40 bg-[#001229]/80 backdrop-blur-md">
+        <nav
+          aria-label="Navigation principale"
+          className="mx-auto flex max-w-7xl items-center justify-between p-6"
+        >
+          <Link href="/" aria-label="Accueil">
+            {LOGO}
+          </Link>
+
+          <ul className="hidden gap-8 text-base font-medium md:flex">
+            {SECTIONS.map(({ id, title }) => (
+              <li key={id}>
+                <Link
+                  href={`#${id}`}
+                  className="transition hover:text-blue-400"
+                >
+                  {title}
                 </Link>
-              ))}
-              <Link href="#tarifs" className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-center hover:bg-blue-700 transition">
-                Voir les tarifs
+              </li>
+            ))}
+            <li>
+              <Link
+                href="#tarifs"
+                className="rounded-full bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
+              >
+                Tarifs
               </Link>
-            </nav>
+            </li>
+            <li>
+              <Link
+                href="#contact"
+                className="rounded-full border-2 border-blue-400 px-4 py-2 text-blue-400 transition hover:bg-[#001229]/20"
+              >
+                Devis
+              </Link>
+            </li>
+          </ul>
+
+          <button
+            onClick={() => setDrawer(true)}
+            className="p-2 text-2xl md:hidden"
+            aria-label="Ouvrir le menu"
+          >
+            ☰
+          </button>
+        </nav>
+      </header>
+
+      {/* ---------------------------- DRAWER ------------------------------ */}
+      <AnimatePresence>
+        {drawer && (
+          <motion.aside
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ duration: 0.35, ease: "easeInOut" }}
+            className="fixed inset-y-0 left-0 z-50 w-64 bg-[#001229]/90 p-6 backdrop-blur"
+          >
+            <button
+              onClick={() => setDrawer(false)}
+              aria-label="Fermer le menu"
+              className="mb-6 text-2xl"
+            >
+              ✕
+            </button>
+            <ul className="flex flex-col gap-4 text-lg">
+              {SECTIONS.map(({ id, icon, title }) => (
+                <li key={id}>
+                  <Link
+                    href={`#${id}`}
+                    onClick={() => setDrawer(false)}
+                    className="flex items-center gap-2 transition hover:text-blue-400"
+                  >
+                    {icon} {title}
+                  </Link>
+                </li>
+              ))}
+              <li className="pt-2">
+                <Link
+                  href="#tarifs"
+                  onClick={() => setDrawer(false)}
+                  className="block rounded-lg bg-blue-600 px-4 py-2 text-center text-white transition hover:bg-blue-700"
+                >
+                  Voir les tarifs
+                </Link>
+              </li>
+            </ul>
           </motion.aside>
         )}
       </AnimatePresence>
 
-      {/* Navbar */}
-      <header className="sticky top-0 z-30 backdrop-blur-md bg-[#001229]/80">
-        <div className="max-w-6xl mx-auto flex items-center justify-between p-6">
-          <h1 className="text-2xl font-extrabold"><Link href="/">MH<span className="text-blue-400">NET</span></Link></h1>
-          <nav className="hidden md:flex space-x-8 text-base">
-            {servicesSections.map(s => (
-              <Link key={s.id} href={`#${s.id}`} className="hover:text-blue-400 transition font-medium">{s.title}</Link>
-            ))}
-            <Link href="#tarifs" className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">TARIFS</Link>
-            <Link href="#contact" className="px-4 py-2 border-2 border-blue-400 text-blue-400 rounded-full hover:bg-[#001229]/20 transition">DEVIS</Link>
-          </nav>
-          <button onClick={() => setMenuOpen(true)} className="md:hidden text-2xl focus:outline-none">☰</button>
-        </div>
-      </header>
-
-      {/* Hero */}
-      <section className="relative pt-20 pb-32 text-center overflow-hidden">
-        <div className="max-w-3xl mx-auto px-6">
-          <motion.h2 initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="text-5xl md:text-6xl font-extrabold leading-tight">Réinvention du Textile</motion.h2>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 0.8 }} className="mt-6 text-lg text-gray-300">Services de nettoyage professionnel ultra-performants,<br />respectueux de vos textiles et de l’environnement.</motion.p>
-          <div className="mt-8 flex justify-center space-x-4">
-            <Link href="#services" passHref><motion.a whileHover={{ scale: 1.05 }} className="px-6 py-3 bg-blue-600 text-white rounded-full font-semibold shadow hover:bg-blue-700 transition">En savoir plus</motion.a></Link>
-            <Link href="#tarifs" passHref><motion.a whileHover={{ scale: 1.05 }} className="px-6 py-3 border-2 border-blue-400 text-blue-400 rounded-full font-semibold hover:bg-[#001229]/20 transition">Nos tarifs</motion.a></Link>
+      {/* ------------------------------ HERO ------------------------------ */}
+      <section
+        id="hero"
+        className="relative py-24 text-center text-white lg:py-32"
+      >
+        <div className="mx-auto max-w-4xl px-6">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl"
+          >
+            Réinvention&nbsp;du&nbsp;Textile
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="mt-6 text-lg text-gray-300"
+          >
+            Nettoyage professionnel ultra-performant, respectueux des textiles et
+            de l’environnement.
+          </motion.p>
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <Link
+              href="#services"
+              className="rounded-full bg-blue-600 px-6 py-3 font-semibold shadow transition hover:bg-blue-700"
+            >
+              En savoir plus
+            </Link>
+            <Link
+              href="#tarifs"
+              className="rounded-full border-2 border-blue-400 px-6 py-3 font-semibold text-blue-400 transition hover:bg-[#001229]/20"
+            >
+              Nos tarifs
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Avant / Après Slider */}
-      <section className="py-20 bg-transparent">
-        <h2 className="text-3xl font-extrabold text-center mb-8">Comparaison Avant / Après</h2>
-        <BeforeAfterSlider before="photo(1).jpeg" after="photo(3).jpeg" />
+      {/* ----------------------- AVANT / APRÈS ---------------------------- */}
+      <section className="py-20">
+        <h2 className="mb-8 text-center text-3xl font-extrabold">
+          Avant&nbsp;/&nbsp;Après
+        </h2>
+        <BeforeAfterSlider before="/photo(1).jpeg" after="/photo(3).jpeg" />
       </section>
 
-      {/* Main Sections */}
-      <main className="py-20 space-y-20">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12">
-          {servicesSections.map(s => (
-            <motion.section key={s.id} id={s.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="bg-[#001229]/60 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition backdrop-blur-sm">
-              <div className="flex items-center mb-4"><span className="text-4xl mr-3">{s.icon}</span><h3 className="text-2xl font-bold">{s.title}</h3></div>
-              {s.list ? <ul className="list-disc list-inside space-y-2 text-gray-300">{s.list.map((item, i) => <li key={i}>{item}</li>)}</ul> : <p className="text-gray-300 leading-relaxed whitespace-pre-line">{s.content}</p>}
-            </motion.section>
+      {/* --------------------------- CONTENU ------------------------------ */}
+      <main id="main" className="space-y-20 py-20">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 md:grid-cols-2 lg:grid-cols-3">
+          {SECTIONS.map((s) => (
+            <motion.article
+              key={s.id}
+              id={s.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="flex flex-col rounded-3xl bg-[#001229]/60 p-8 shadow-lg backdrop-blur-md transition hover:shadow-2xl"
+            >
+              <header className="mb-4 flex items-center gap-3">
+                <span className="text-4xl">{s.icon}</span>
+                <h3 className="text-2xl font-bold">{s.title}</h3>
+              </header>
+
+              {"list" in s && s.list ? (
+                <ul className="list-inside list-disc space-y-2 text-gray-300">
+                  {s.list.map((li) => (
+                    <li key={li}>{li}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-300">{s.content}</p>
+              )}
+            </motion.article>
           ))}
         </div>
 
-        {/* Pricing Cards */}
+        {/* -------------------------- TARIFS ----------------------------- */}
         <section id="tarifs" className="py-20">
-          <div className="max-w-6xl mx-auto px-6">
-            <h2 className="text-4xl font-extrabold text-center mb-12 text-white">Tarifs MH Net</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {pricing.map((p, i) => (
-                <motion.div key={i} whileHover={{ scale: 1.03 }} className="bg-[#001229]/70 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition backdrop-blur-sm flex flex-col justify-between">
-                  <h3 className="text-2xl font-bold mb-4 text-white">{p.prestation}</h3>
-                  <p className="text-blue-400 text-xl font-semibold mb-6">{p.prix}</p>
-                  <Link href="#contact" passHref><motion.a whileHover={{ scale: 1.05 }} className="mt-auto px-4 py-2 bg-blue-600 text-white rounded-full text-center font-medium hover:bg-blue-700 transition">Réserver</motion.a></Link>
+          <div className="mx-auto max-w-7xl px-6">
+            <h2 className="mb-12 text-center text-4xl font-extrabold">Tarifs</h2>
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {PRICING.map(({ prestation, prix }) => (
+                <motion.div
+                  key={prestation}
+                  whileHover={{ scale: 1.03 }}
+                  className="flex flex-col justify-between rounded-3xl bg-[#001229]/70 p-6 shadow-lg backdrop-blur-md transition hover:shadow-2xl"
+                >
+                  <h3 className="mb-4 text-2xl font-bold">{prestation}</h3>
+                  <p className="mb-6 text-xl font-semibold text-blue-400">
+                    {prix}
+                  </p>
+                  <Link
+                    href="#contact"
+                    className="mt-auto rounded-full bg-blue-600 px-4 py-2 text-center font-medium transition hover:bg-blue-700"
+                  >
+                    Réserver
+                  </Link>
                 </motion.div>
               ))}
             </div>
@@ -221,14 +424,27 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Footer / Contact */}
-      <footer className="bg-[#001229] text-white py-16">
-        <div className="max-w-3xl mx-auto px-6 text-center space-y-6">
-          <h2 className="text-3xl font-extrabold">Besoin d’un devis ?</h2>
-          <p className="text-lg text-gray-300">Contactez-nous dès maintenant pour une estimation gratuite et sans engagement.</p>
-          <Link href="mailto:contact@mhnet.com" passHref><motion.a whileHover={{ scale: 1.05 }} className="inline-block px-8 py-4 border-2 border-blue-400 rounded-full font-semibold hover:bg-[#001229]/20 transition">Demander un devis</motion.a></Link>
+      {/* ---------------------------- FOOTER ----------------------------- */}
+      <footer
+        id="contact"
+        className="bg-[#001229] py-16 text-center text-white"
+      >
+        <div className="mx-auto flex max-w-xl flex-col gap-6 px-6">
+          <h2 className="text-3xl font-extrabold">Besoin d’un devis&nbsp;?</h2>
+          <p className="text-lg text-gray-300">
+            Contactez-nous dès maintenant pour un devis gratuit.
+          </p>
+          <Link
+            href="mailto:contact@mhnet.com"
+            className="mx-auto inline-block rounded-full border-2 border-blue-400 px-8 py-4 font-semibold transition hover:bg-[#001229]/20"
+          >
+            Demander un devis
+          </Link>
+          <p className="pt-8 text-sm text-gray-500">
+            © {new Date().getFullYear()} MHNET • Tous droits réservés
+          </p>
         </div>
       </footer>
-    </div>
+    </>
   );
 }
