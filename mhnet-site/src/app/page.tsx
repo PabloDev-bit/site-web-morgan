@@ -52,47 +52,47 @@ const SECTIONS_DATA: readonly SectionData[] = [
   {
     id: "services",
     icon: "✨",
-    title: "Nos Prestations Haut de Gamme", // Modifié
+    title: "Nos Prestations Haut de Gamme",
     content:
-      "Notre technologie de nettoyage textile de pointe garantit une pureté et un éclat inégalés pour tous vos tissus.", // Modifié
+      "Notre technologie de nettoyage textile de pointe garantit une pureté et un éclat inégalés pour tous vos tissus.",
   },
   {
     id: "about",
-    icon: "🚀", // Icône conservée pour le dynamisme
-    title: "Notre Expertise", // Modifié
+    icon: "🚀",
+    title: "Notre Expertise",
     content:
-      "Forts d'une décennie d'expérience dans l'art du nettoyage, MHNET redéfinit l'excellence avec une précision et une passion reconnues.", // Modifié
+      "Forts d&apos;une décennie d&apos;expérience dans l&apos;art du nettoyage, MHNET redéfinit l&apos;excellence avec une précision et une passion reconnues.", // Corrigé
   },
   {
     id: "advantages",
-    icon: "💎", // Icône conservée
-    title: "Vos Avantages Exclusifs", // Modifié
+    icon: "💎",
+    title: "Vos Avantages Exclusifs",
     list: [
-      "Nettoyage en ultra-profondeur par injection ciblée.", // Modifié
-      "Élimination experte des taches rebelles.", // Modifié
-      "Séchage rapide optimisé par aspiration haute performance.", // Modifié
-      "Solutions de nettoyage écologiques et respectueuses des matériaux.", // Modifié
-      "Régénération visible des fibres textiles, aspect neuf retrouvé.", // Modifié
+      "Nettoyage en ultra-profondeur par injection ciblée.",
+      "Élimination experte des taches rebelles.",
+      "Séchage rapide optimisé par aspiration haute performance.",
+      "Solutions de nettoyage écologiques et respectueuses des matériaux.",
+      "Régénération visible des fibres textiles, aspect neuf retrouvé.",
     ],
   },
   {
     id: "engagement",
-    icon: "🛡️", // Icône conservée
-    title: "Notre Engagement Qualité", // Modifié
+    icon: "🛡️",
+    title: "Notre Engagement Qualité",
     content:
-      "Ponctualité rigoureuse et professionnalisme irréprochable garantis. Votre satisfaction est notre priorité absolue.", // Modifié
+      "Ponctualité rigoureuse et professionnalisme irréprochable garantis. Votre satisfaction est notre priorité absolue.",
   },
 ] as const;
 
 const PRICING_DATA = [
-  { prestation: "Fauteuil Individuel", prix: "dès 70 CHF" }, // Modifié
-  { prestation: "Canapé Confort (2p)", prix: "dès 120 CHF" }, // Modifié
-  { prestation: "Canapé Prestige (3p)", prix: "dès 150 CHF" }, // Modifié
-  { prestation: "Tapis Standard", prix: "dès 90 CHF" }, // Conservé, déjà "dès"
-  { prestation: "Matelas Simple (1p)", prix: "dès 90 CHF" }, // Modifié
-  { prestation: "Matelas Double (2p)", prix: "dès 120 CHF" }, // Modifié
-  { prestation: "Matelas King Size", prix: "dès 150 CHF" }, // Modifié
-  { prestation: "Intérieur de Véhicule Complet", prix: "dès 140 CHF" }, // Modifié
+  { prestation: "Fauteuil Individuel", prix: "dès 70 CHF" },
+  { prestation: "Canapé Confort (2p)", prix: "dès 120 CHF" },
+  { prestation: "Canapé Prestige (3p)", prix: "dès 150 CHF" },
+  { prestation: "Tapis Standard", prix: "dès 90 CHF" },
+  { prestation: "Matelas Simple (1p)", prix: "dès 90 CHF" },
+  { prestation: "Matelas Double (2p)", prix: "dès 120 CHF" },
+  { prestation: "Matelas King Size", prix: "dès 150 CHF" },
+  { prestation: "Intérieur de Véhicule Complet", prix: "dès 140 CHF" },
 ] as const;
 
 const THEME_COLORS = {
@@ -118,7 +118,7 @@ function Logo() {
   );
 }
 
-function GalaxyBackground() { // Nom conservé car il décrit l'effet visuel, mais la sémantique du site est neutre
+function GalaxyBackground() {
   const stars = useMemo<Star[]>(() =>
     Array.from({ length: 200 }, (_, i) => ({
       id: i,
@@ -296,7 +296,7 @@ function Hero() {
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           className="text-5xl font-black leading-tight sm:text-6xl lg:text-7xl tracking-tighter"
         >
-          L'Excellence <span className="block sm:inline">du Soin Textile Professionnel</span> {/* Modifié */}
+          L&apos;Excellence <span className="block sm:inline">du Soin Textile Professionnel</span> {/* Corrigé */}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 30 }}
@@ -304,7 +304,7 @@ function Hero() {
           transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
           className="mt-8 text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed"
         >
-          MHNET allie technologie de pointe et savoir-faire expert pour sublimer le nettoyage textile traditionnel. {/* Modifié */}
+          MHNET allie technologie de pointe et savoir-faire expert pour sublimer le nettoyage textile traditionnel.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -423,7 +423,7 @@ function PricingCard({ item, index }: { item: typeof PRICING_DATA[number]; index
         href="#contact"
         className={`mt-auto block w-full rounded-lg ${THEME_COLORS.primaryBg} px-6 py-3.5 text-center text-lg font-semibold text-white shadow-md ${THEME_COLORS.primaryHoverBg} transition-all duration-300 hover:shadow-blue-400/60 transform hover:scale-105`}
       >
-        Réserver cette prestation {/* Modifié */}
+        Réserver cette prestation
       </Link>
     </motion.div>
   );
@@ -433,7 +433,7 @@ function PricingDisplay() {
   return (
     <AnimatedSection id="tarifs" className="py-24 lg:py-32" delay={0.3}>
       <div className="mx-auto max-w-7xl px-6">
-        <h2 className="mb-16 text-center text-4xl font-black text-white sm:text-5xl lg:text-6xl tracking-tighter">Notre Grille Tarifaire</h2> {/* Modifié */}
+        <h2 className="mb-16 text-center text-4xl font-black text-white sm:text-5xl lg:text-6xl tracking-tighter">Notre Grille Tarifaire</h2>
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:gap-10">
           {PRICING_DATA.map((p, index) => (
             <PricingCard key={p.prestation} item={p} index={index} />
@@ -452,27 +452,27 @@ function PageFooter() {
             className="text-4xl font-black sm:text-5xl tracking-tighter"
             initial={{opacity: 0, y: -20}} animate={{opacity: 1, y: 0, transition: {delay: 0.1}}}
         >
-            Prêt pour un Devis <span className={THEME_COLORS.primary}>Personnalisé</span>&nbsp;? {/* Modifié */}
+            Prêt pour un Devis <span className={THEME_COLORS.primary}>Personnalisé</span>&nbsp;?
         </motion.h2>
         <motion.p 
             className="text-lg text-gray-300/90 leading-relaxed"
             initial={{opacity: 0}} animate={{opacity: 1, transition: {delay: 0.2}}}
         >
-          Contactez notre équipe dès maintenant pour une estimation gratuite et sur mesure, adaptée à vos besoins de nettoyage. {/* Modifié */}
+          Contactez notre équipe dès maintenant pour une estimation gratuite et sur mesure, adaptée à vos besoins de nettoyage.
         </motion.p>
         <motion.div initial={{opacity: 0, scale: 0.8}} animate={{opacity: 1, scale: 1, transition: {delay: 0.3, type: "spring"}}}>
             <Link
                 href="mailto:contact@mhnet.com"
                 className={`inline-block rounded-lg border-2 ${THEME_COLORS.primary} border-current px-10 py-4 text-lg font-semibold ${THEME_COLORS.primary} shadow-lg transition-all duration-300 hover:bg-blue-400/10 hover:shadow-blue-400/40 transform hover:scale-105`}
             >
-                Demander Votre Devis Détaillé {/* Modifié */}
+                Demander Votre Devis Détaillé
             </Link>
         </motion.div>
         <motion.p 
             className="pt-10 text-sm text-gray-500"
             initial={{opacity: 0}} animate={{opacity: 1, transition: {delay: 0.4}}}
         >
-          © {new Date().getFullYear()} MHNET • Tous Droits Réservés. {/* Modifié */}
+          © {new Date().getFullYear()} MHNET • Tous Droits Réservés.
         </motion.p>
       </div>
     </AnimatedSection>
@@ -526,7 +526,7 @@ export default function Home() {
             {SECTIONS_DATA.map(({ id, title }) => (
               <li key={id}>
                 <Link href={`#${id}`} className={`transition-colors duration-300 hover:${THEME_COLORS.primary}`}>
-                  {title}
+                  {title} {/* Titles in SECTIONS_DATA don't have apostrophes needing fixing */}
                 </Link>
               </li>
             ))}
@@ -590,7 +590,7 @@ export default function Home() {
                     className={`flex items-center gap-4 p-3 rounded-md transition-all duration-300 hover:bg-blue-500/10 hover:${THEME_COLORS.primary} group`}
                   >
                     <span className="text-2xl group-hover:scale-110 transition-transform">{icon}</span> 
-                    <span className="font-medium">{title}</span>
+                    <span className="font-medium">{title}</span> {/* Titles in SECTIONS_DATA don't have apostrophes needing fixing */}
                   </Link>
                 </li>
               ))}
