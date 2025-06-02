@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------------- */
 /* /app/page.tsx — page d'accueil tout-en-un (composants internes)          */
 /* Next.js 13/14 + Tailwind + Framer-Motion, full TypeScript                 */
-/* Version avec design et structure améliorés                               */
+/* Version avec design et structure améliorés - Thème Neutre Professionnel  */
 /* -------------------------------------------------------------------------- */
 "use client";
 
@@ -17,9 +17,9 @@ import {
   AnimatePresence,
   useScroll,
   useTransform,
-  useAnimation, // Pour un contrôle plus fin des animations
+  useAnimation,
 } from "framer-motion";
-import { useInView } from "react-intersection-observer"; // Pour déclencher les animations au scroll
+import { useInView } from "react-intersection-observer";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -35,7 +35,7 @@ type Star = { id: number; x: number; y: number; size: number; twinkleDuration: n
 type SectionData =
   | {
       id: string;
-      icon: string; // Peut être un emoji ou un chemin vers une icône SVG
+      icon: string;
       title: string;
       content: string;
       list?: undefined;
@@ -51,57 +51,56 @@ type SectionData =
 const SECTIONS_DATA: readonly SectionData[] = [
   {
     id: "services",
-    icon: "✨", // Émojis peuvent être stylisés ou remplacés par des SVG
-    title: "Services Galactiques",
+    icon: "✨",
+    title: "Nos Prestations Haut de Gamme", // Modifié
     content:
-      "Notre technologie de nettoyage textile issue des confins de la galaxie garantit une pureté et un éclat inégalés pour tous vos tissus.",
+      "Notre technologie de nettoyage textile de pointe garantit une pureté et un éclat inégalés pour tous vos tissus.", // Modifié
   },
   {
     id: "about",
-    icon: "🚀",
-    title: "Notre Mission Stellaire",
+    icon: "🚀", // Icône conservée pour le dynamisme
+    title: "Notre Expertise", // Modifié
     content:
-      "Forts d'une décennie d'exploration dans l'art du nettoyage, MHNET redéfinit l'excellence avec une précision et une passion cosmiques.",
+      "Forts d'une décennie d'expérience dans l'art du nettoyage, MHNET redéfinit l'excellence avec une précision et une passion reconnues.", // Modifié
   },
   {
     id: "advantages",
-    icon: "💎",
-    title: "Avantages Cosmiques",
+    icon: "💎", // Icône conservée
+    title: "Vos Avantages Exclusifs", // Modifié
     list: [
-      "Nettoyage en ultra-profondeur par injection nébulaire.",
-      "Désintégration des taches rebelles au niveau atomique.",
-      "Séchage hyper-rapide par vortex gravitationnel contrôlé.",
-      "Solutions de nettoyage bio-synthétiques respectueuses de l'écosystème.",
-      "Régénération instantanée des fibres textiles, aspect neuf garanti.",
+      "Nettoyage en ultra-profondeur par injection ciblée.", // Modifié
+      "Élimination experte des taches rebelles.", // Modifié
+      "Séchage rapide optimisé par aspiration haute performance.", // Modifié
+      "Solutions de nettoyage écologiques et respectueuses des matériaux.", // Modifié
+      "Régénération visible des fibres textiles, aspect neuf retrouvé.", // Modifié
     ],
   },
   {
     id: "engagement",
-    icon: "🛡️",
-    title: "Engagement Interstellaire",
+    icon: "🛡️", // Icône conservée
+    title: "Notre Engagement Qualité", // Modifié
     content:
-      "Ponctualité à la vitesse de la lumière et professionnalisme d'un autre monde. Votre satisfaction est notre constellation directrice.",
+      "Ponctualité rigoureuse et professionnalisme irréprochable garantis. Votre satisfaction est notre priorité absolue.", // Modifié
   },
 ] as const;
 
 const PRICING_DATA = [
-  { prestation: "Fauteuil Astro", prix: "70 CHF" },
-  { prestation: "Canapé Nova (2p)", prix: "120 CHF" },
-  { prestation: "Canapé Supernova (3p)", prix: "150 CHF" },
-  { prestation: "Tapis Nébuleuse (std)", prix: "dès 90 CHF" },
-  { prestation: "Matelas Pulsar (1p)", prix: "90 CHF" },
-  { prestation: "Matelas Quasar (2p)", prix: "120 CHF" },
-  { prestation: "Matelas Galaxie (King)", prix: "150 CHF" },
-  { prestation: "Navette Spatiale (Int. voiture)", prix: "140 CHF" },
+  { prestation: "Fauteuil Individuel", prix: "dès 70 CHF" }, // Modifié
+  { prestation: "Canapé Confort (2p)", prix: "dès 120 CHF" }, // Modifié
+  { prestation: "Canapé Prestige (3p)", prix: "dès 150 CHF" }, // Modifié
+  { prestation: "Tapis Standard", prix: "dès 90 CHF" }, // Conservé, déjà "dès"
+  { prestation: "Matelas Simple (1p)", prix: "dès 90 CHF" }, // Modifié
+  { prestation: "Matelas Double (2p)", prix: "dès 120 CHF" }, // Modifié
+  { prestation: "Matelas King Size", prix: "dès 150 CHF" }, // Modifié
+  { prestation: "Intérieur de Véhicule Complet", prix: "dès 140 CHF" }, // Modifié
 ] as const;
 
-// Couleurs thématiques (peuvent être étendues dans Tailwind config)
 const THEME_COLORS = {
   primary: "text-blue-400",
   primaryBg: "bg-blue-600",
   primaryHoverBg: "hover:bg-blue-500",
-  darkBg: "bg-[#0a192f]", // Un bleu nuit plus profond
-  cardBg: "bg-[#11224e]/70", // Bleu nuit pour les cartes, plus saturé
+  darkBg: "bg-[#0a192f]",
+  cardBg: "bg-[#11224e]/70",
   cardHoverBg: "hover:bg-[#11224e]/90",
   accentRing: "ring-blue-500/50",
 };
@@ -119,29 +118,28 @@ function Logo() {
   );
 }
 
-function GalaxyBackground() {
+function GalaxyBackground() { // Nom conservé car il décrit l'effet visuel, mais la sémantique du site est neutre
   const stars = useMemo<Star[]>(() =>
-    Array.from({ length: 200 }, (_, i) => ({ // Plus d'étoiles
+    Array.from({ length: 200 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: Math.random() * 2.5 + 0.5, // Tailles légèrement variées
-      twinkleDuration: Math.random() * 3 + 2, // Durées de scintillement variées
-      opacity: Math.random() * 0.5 + 0.3, // Opacité initiale variée
+      size: Math.random() * 2.5 + 0.5,
+      twinkleDuration: Math.random() * 3 + 2,
+      opacity: Math.random() * 0.5 + 0.3,
     })),
     []
   );
 
-  // Parallax effect for stars based on scroll
   const { scrollY } = useScroll();
-  const y1 = useTransform(scrollY, [0, 1000], [0, -100]); // Couche lente
-  const y2 = useTransform(scrollY, [0, 1000], [0, -50]);  // Couche plus rapide
+  const y1 = useTransform(scrollY, [0, 1000], [0, -100]);
+  const y2 = useTransform(scrollY, [0, 1000], [0, -50]);
 
   return (
     <div className={`fixed inset-0 -z-20 pointer-events-none overflow-hidden ${THEME_COLORS.darkBg}`}>
       <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-[#0a192f] via-[#001229] to-[#000814]" // Dégradé plus subtil
-        animate={{ backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"] }} // Animation de va-et-vient
+        className="absolute inset-0 bg-gradient-to-br from-[#0a192f] via-[#001229] to-[#000814]"
+        animate={{ backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"] }}
         transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
       />
       {stars.map((s, i) => (
@@ -153,14 +151,14 @@ function GalaxyBackground() {
             height: s.size,
             top: `${s.y}%`,
             left: `${s.x}%`,
-            y: i % 2 === 0 ? y1 : y2, // Appliquer différents effets de parallaxe
+            y: i % 2 === 0 ? y1 : y2,
           }}
           animate={{ opacity: [s.opacity * 0.3, s.opacity, s.opacity * 0.3] }}
           transition={{
             duration: s.twinkleDuration,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: Math.random() * 2, // Délais de départ aléatoires
+            delay: Math.random() * 2,
           }}
         />
       ))}
@@ -291,43 +289,40 @@ function AnimatedSection({ children, className = "", delay = 0, id }: { children
 function Hero() {
   return (
     <AnimatedSection className="relative min-h-[80vh] flex items-center justify-center text-center text-white py-24 lg:py-32 overflow-hidden">
-      <div className="absolute inset-0 -z-10">
-        {/* Potentiellement un effet de nébuleuse subtil ici en plus du GalaxyBackground */}
-      </div>
       <div className="mx-auto max-w-5xl px-6 relative z-10">
         <motion.h1
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="text-5xl font-black leading-tight sm:text-6xl lg:text-7xl tracking-tighter" // Typo plus impactante
+          className="text-5xl font-black leading-tight sm:text-6xl lg:text-7xl tracking-tighter"
         >
-          Réinvention Cosmique <span className="block sm:inline">du Soin Textile</span>
+          L'Excellence <span className="block sm:inline">du Soin Textile Professionnel</span> {/* Modifié */}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-          className="mt-8 text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed" // Typo et espacement
+          className="mt-8 text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed"
         >
-          MHNET fusionne technologie de pointe et savoir-faire interstellaire pour transcender le nettoyage textile traditionnel.
+          MHNET allie technologie de pointe et savoir-faire expert pour sublimer le nettoyage textile traditionnel. {/* Modifié */}
         </motion.p>
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.8, type: "spring", stiffness: 100 }}
-          className="mt-12 flex flex-col sm:flex-row justify-center items-center gap-6" // Espacement et responsive
+          className="mt-12 flex flex-col sm:flex-row justify-center items-center gap-6"
         >
           <Link
             href="#services"
             className={`px-8 py-4 text-lg font-semibold rounded-lg ${THEME_COLORS.primaryBg} text-white shadow-lg ${THEME_COLORS.primaryHoverBg} transition-all duration-300 transform hover:scale-105 hover:shadow-blue-400/50`}
           >
-            Explorer Nos Services
+            Découvrir Nos Prestations
           </Link>
           <Link
             href="#tarifs"
             className={`px-8 py-4 text-lg font-semibold rounded-lg border-2 ${THEME_COLORS.primary} border-current transition-all duration-300 transform hover:scale-105 hover:bg-blue-400/10 hover:shadow-blue-400/30`}
           >
-            Voir Nos Tarifs
+            Consulter Nos Tarifs
           </Link>
         </motion.div>
       </div>
@@ -350,7 +345,7 @@ function SectionCard({ section, index }: { section: SectionData; index: number }
     <motion.article
       id={section.id}
       custom={index}
-      variants={cardVariants} // Animation d'entrée individuelle
+      variants={cardVariants}
       className={`flex flex-col rounded-2xl ${THEME_COLORS.cardBg} p-8 shadow-2xl shadow-black/30 backdrop-blur-md ring-1 ring-white/10 transition-all duration-300 ${THEME_COLORS.cardHoverBg} hover:shadow-blue-500/40 hover:ring-blue-500/60 transform hover:-translate-y-2`}
     >
       <header className="mb-6 flex items-center gap-5">
@@ -428,7 +423,7 @@ function PricingCard({ item, index }: { item: typeof PRICING_DATA[number]; index
         href="#contact"
         className={`mt-auto block w-full rounded-lg ${THEME_COLORS.primaryBg} px-6 py-3.5 text-center text-lg font-semibold text-white shadow-md ${THEME_COLORS.primaryHoverBg} transition-all duration-300 hover:shadow-blue-400/60 transform hover:scale-105`}
       >
-        Réserver cette Odyssée
+        Réserver cette prestation {/* Modifié */}
       </Link>
     </motion.div>
   );
@@ -438,7 +433,7 @@ function PricingDisplay() {
   return (
     <AnimatedSection id="tarifs" className="py-24 lg:py-32" delay={0.3}>
       <div className="mx-auto max-w-7xl px-6">
-        <h2 className="mb-16 text-center text-4xl font-black text-white sm:text-5xl lg:text-6xl tracking-tighter">Nos Constellations Tarifaires</h2>
+        <h2 className="mb-16 text-center text-4xl font-black text-white sm:text-5xl lg:text-6xl tracking-tighter">Notre Grille Tarifaire</h2> {/* Modifié */}
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:gap-10">
           {PRICING_DATA.map((p, index) => (
             <PricingCard key={p.prestation} item={p} index={index} />
@@ -457,27 +452,27 @@ function PageFooter() {
             className="text-4xl font-black sm:text-5xl tracking-tighter"
             initial={{opacity: 0, y: -20}} animate={{opacity: 1, y: 0, transition: {delay: 0.1}}}
         >
-            Prêt pour un Devis <span className={THEME_COLORS.primary}>Stellaire</span>&nbsp;?
+            Prêt pour un Devis <span className={THEME_COLORS.primary}>Personnalisé</span>&nbsp;? {/* Modifié */}
         </motion.h2>
         <motion.p 
             className="text-lg text-gray-300/90 leading-relaxed"
             initial={{opacity: 0}} animate={{opacity: 1, transition: {delay: 0.2}}}
         >
-          Contactez notre équipage dès maintenant pour une estimation gratuite et personnalisée, adaptée à votre mission de nettoyage.
+          Contactez notre équipe dès maintenant pour une estimation gratuite et sur mesure, adaptée à vos besoins de nettoyage. {/* Modifié */}
         </motion.p>
         <motion.div initial={{opacity: 0, scale: 0.8}} animate={{opacity: 1, scale: 1, transition: {delay: 0.3, type: "spring"}}}>
             <Link
                 href="mailto:contact@mhnet.com"
                 className={`inline-block rounded-lg border-2 ${THEME_COLORS.primary} border-current px-10 py-4 text-lg font-semibold ${THEME_COLORS.primary} shadow-lg transition-all duration-300 hover:bg-blue-400/10 hover:shadow-blue-400/40 transform hover:scale-105`}
             >
-                Demander Votre Devis Galactique
+                Demander Votre Devis Détaillé {/* Modifié */}
             </Link>
         </motion.div>
         <motion.p 
             className="pt-10 text-sm text-gray-500"
             initial={{opacity: 0}} animate={{opacity: 1, transition: {delay: 0.4}}}
         >
-          © {new Date().getFullYear()} MHNET • Tous Droits Réservés Dans Cet Univers Et Les Autres.
+          © {new Date().getFullYear()} MHNET • Tous Droits Réservés. {/* Modifié */}
         </motion.p>
       </div>
     </AnimatedSection>
@@ -497,7 +492,6 @@ export default function Home() {
     return () => window.removeEventListener("keydown", handleEscKey);
   }, []);
 
-  // Animation pour le corps de la page pour éviter le flash de contenu non stylisé
   const pageVariants = {
     initial: { opacity: 0 },
     animate: { opacity: 1, transition: { duration: 0.5 } },
@@ -506,7 +500,7 @@ export default function Home() {
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="text-gray-200">
       <a
-        href="#main-content-grid" // Cible le conteneur des sections principales
+        href="#main-content-grid" 
         className="sr-only focus:not-sr-only absolute top-0 left-0 m-3 rounded-md bg-blue-700 px-5 py-3 text-white font-semibold z-50 shadow-lg"
       >
         Aller au contenu principal
