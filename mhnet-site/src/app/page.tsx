@@ -22,6 +22,7 @@ import {
 import { useInView } from "react-intersection-observer";
 import Link from "next/link";
 import Image from "next/image";
+import ContactForm from "./ContactForm";
 
 /* ============================== 1. MÉTADONNÉES ET TYPES ============================ */
 
@@ -454,20 +455,20 @@ function PageFooter() {
         >
             Prêt pour un Devis <span className={THEME_COLORS.primary}>Personnalisé</span>&nbsp;?
         </motion.h2>
+
+        {/* TEXTE MIS À JOUR POUR CORRESPONDRE AU FORMULAIRE */}
         <motion.p 
             className="text-lg text-gray-300/90 leading-relaxed"
             initial={{opacity: 0}} animate={{opacity: 1, transition: {delay: 0.2}}}
         >
-          Contactez notre équipe dès maintenant pour une estimation gratuite et sur mesure, adaptée à vos besoins de nettoyage.
+          Remplissez le formulaire ci-dessous pour une estimation gratuite et sur mesure, adaptée à vos besoins de nettoyage.
         </motion.p>
-        <motion.div initial={{opacity: 0, scale: 0.8}} animate={{opacity: 1, scale: 1, transition: {delay: 0.3, type: "spring"}}}>
-            <Link
-                href="mailto:contact@mhnet.com"
-                className={`inline-block rounded-lg border-2 ${THEME_COLORS.primary} border-current px-10 py-4 text-lg font-semibold ${THEME_COLORS.primary} shadow-lg transition-all duration-300 hover:bg-blue-400/10 hover:shadow-blue-400/40 transform hover:scale-105`}
-            >
-                Demander Votre Devis Détaillé
-            </Link>
-        </motion.div>
+        
+        {/* L'ANCIEN LIEN "mailto" EST REMPLACÉ PAR CECI : */}
+        <div className="w-full">
+            <ContactForm />
+        </div>
+        
         <motion.p 
             className="pt-10 text-sm text-gray-500"
             initial={{opacity: 0}} animate={{opacity: 1, transition: {delay: 0.4}}}
