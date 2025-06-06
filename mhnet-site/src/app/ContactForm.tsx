@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { motion } from "framer-motion";
+
 
 const PRICING_DATA = [
   { prestation: "Fauteuil Individuel", prix: "dès 70 CHF" },

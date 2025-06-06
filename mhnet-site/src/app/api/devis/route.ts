@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Envoyer l'email avec Resend
-    const { data, error } = await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: 'MHNET Devis <onboarding@resend.dev>', // Doit être un domaine vérifié sur Resend
       to: [emailTo],
       subject: `Nouvelle demande de devis de ${name} pour : ${prestation}`,
